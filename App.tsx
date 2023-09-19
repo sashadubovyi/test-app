@@ -7,12 +7,16 @@ import { FIREBASE_AUTH } from "./firebaseConfig";
 import InsideLayout from "./app/sreens/InsideLayout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // import { initializeAppsFlyer } from "./appsFlyerConfig";
+import { WebView } from "react-native-webview";
+import axios from "axios";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [hasCompletedQuiz, setHasCompletedQuiz] = useState<boolean>(false);
+  const [isWebsiteExist, setIsWebsiteExist] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     AsyncStorage.getItem("userData")
@@ -38,6 +42,24 @@ export default function App() {
       })
       .catch((error) => {
         console.error(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    // Здійсніть HTTP запит на випадковий URL
+    const randomUrl = "https://example.com"; // Замініть на ваш URL
+    axios
+      .get(randomUrl)
+      .then((response) => {
+        // Якщо запит успішний (статус 200), сайт існує
+        setIsWebsiteExist(response.status === 200);
+      })
+      .catch((error) => {
+        // Якщо сталася помилка, сайт не існує
+        setIsWebsiteExist(false);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
