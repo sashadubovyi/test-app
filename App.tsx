@@ -15,18 +15,30 @@ export default function App() {
   const [hasCompletedQuiz, setHasCompletedQuiz] = useState<boolean>(false);
 
   useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log("user", user);
-      setUser(user);
+    AsyncStorage.getItem("userData")
+      .then((userData) => {
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+        }
+      })
+      .catch((error) => {
+        console.error("Помилка отримання даних користувача:", error);
+      });
+
+    onAuthStateChanged(FIREBASE_AUTH, (authUser) => {
+      setUser(authUser);
     });
 
-    AsyncStorage.getItem("hasCompletedQuiz").then((value) => {
-      if (value === "true") {
-        setHasCompletedQuiz(true);
-      }
-    });
-
-    // initializeAppsFlyer();
+    AsyncStorage.getItem("hasCompletedQuiz")
+      .then((value) => {
+        if (value === "true") {
+          setHasCompletedQuiz(true);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }, []);
 
   console.log(hasCompletedQuiz);

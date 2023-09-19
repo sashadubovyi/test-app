@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDLa83PPZTdyXRrXL3M2vLNIrxAnq1dneo",
@@ -14,9 +15,18 @@ const firebaseConfig = {
 export const FIREBASE_APP = initializeApp(firebaseConfig);
 export const FIREBASE_DB = getFirestore(FIREBASE_APP);
 export const FIREBASE_AUTH = getAuth(FIREBASE_APP);
-
-// onAuthStateChanged(FIREBASE_AUTH, (user) => {
-//   if (user) {
-//   } else {
-//   }
-// });
+onAuthStateChanged(FIREBASE_AUTH, async (user) => {
+  if (user) {
+    try {
+      await AsyncStorage.setItem("userData", JSON.stringify(user));
+    } catch (error) {
+      console.error("Помилка збереження даних користувача:", error);
+    }
+  } else {
+    try {
+      await AsyncStorage.removeItem("userData");
+    } catch (error) {
+      console.error("Помилка видалення даних користувача:", error);
+    }
+  }
+});
